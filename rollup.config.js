@@ -56,6 +56,11 @@ export default {
 
     // If we're building for production (npm run build
     // instead of npm run dev), minify
-    production && terser()
+    production && terser({
+      compress: true,
+      mangle: {
+        properties: true,
+      },
+    })
   ],
 };

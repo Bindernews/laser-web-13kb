@@ -1,12 +1,14 @@
-import { GRID_H, GRID_W } from "./constants";
 
 /**
  * @class Main game state
  */
 export class Game {
   constructor() {
+    // NOTE: Some names (like ggrid) are that way to help the name-mangler
+    // reduce the code size.
+
     /** @type {number} Timestamp of start of previous frame */
-    this.timestamp = 0;
+    this.lastTimestamp = 0;
     /** @type {CanvasRenderingContext2D} Canvas rendering context */
     this.ctx = document.getElementById('render').getContext('2d');
     /** @type {number} Hue */
@@ -16,7 +18,7 @@ export class Game {
     /** @type {number} Game height */
     this.gameH = 400;
     /** @type {Array<Array<number>>} level grid */
-    this.grid = [[]]
+    this.ggrid = [[]]
   }
 
   /**
@@ -25,10 +27,10 @@ export class Game {
    */
   frame(time) {
     // Example game loop
-    this.update(time - this.timestamp);
+    this.update(time - this.lastTimestamp);
     this.draw();
     // Update the timestamp for the next frame
-    this.timestamp = time;
+    this.lastTimestamp = time;
     // Next frame
     requestAnimationFrame((t) => this.frame(t));
   }
@@ -70,7 +72,7 @@ export class Game {
    * Start running the game
    */
   run() {
-    this.timestamp = performance.now();
+    this.lastTimestamp = performance.now();
     requestAnimationFrame((t) => this.frame(t));
   }
 }
