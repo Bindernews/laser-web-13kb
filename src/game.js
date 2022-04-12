@@ -1,4 +1,3 @@
-
 /**
  * @class Main game state
  */
@@ -10,7 +9,7 @@ export class Game {
     /** @type {number} Timestamp of start of previous frame */
     this.lastTimestamp = 0;
     /** @type {CanvasRenderingContext2D} Canvas rendering context */
-    this.ctx = document.getElementById('render').getContext('2d');
+    this.ctx = document.getElementById("render").getContext("2d");
     /** @type {number} Hue */
     this.hue = 0;
     /** @type {number} Game width */
@@ -18,7 +17,7 @@ export class Game {
     /** @type {number} Game height */
     this.gameH = 400;
     /** @type {Array<Array<number>>} level grid */
-    this.ggrid = [[]]
+    this.ggrid = [[]];
   }
 
   /**
@@ -52,7 +51,7 @@ export class Game {
 
   /**
    * Load a level string
-   * @param {string} text 
+   * @param {string} text
    */
   loadLevel(text) {
     const dict = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -61,8 +60,10 @@ export class Game {
     for (let i = 0; i < text.length; i += 1) {
       const item = dict.indexOf(text.charAt(i));
       grid.push(item);
-      switch (item) {
+      switch (
+        item
         // TODO create objects
+      ) {
       }
     }
     // TODO convert grid to 2D array, store it
