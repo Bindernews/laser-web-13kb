@@ -47,6 +47,19 @@ export class Game {
     const ctx = this.ctx;
     ctx.fillStyle = `hsl(${this.hue}, 100%, 80%)`;
     ctx.fillRect(0, 0, this.gameW, this.gameH);
+    //draw a rectangle
+    ctx.fillStyle = "green";
+    ctx.fillRect(20, 20, 10, 10);
+    //draw a circle
+    ctx.beginPath();
+    ctx.arc(50, 50, 10, 0, 2 * Math.PI, false); //centerX, centerY, radius
+    ctx.fillStyle = "blue";
+    ctx.fill();
+    //draw a half circle
+    ctx.beginPath();
+    ctx.arc(100, 50, 10, 0, Math.PI, false); //centerX, centerY, radius
+    ctx.fillStyle = "red";
+    ctx.fill();
   }
 
   /**
