@@ -18,6 +18,13 @@ export class Game {
     this.gameH = 400;
     /** @type {Array<Array<number>>} level grid */
     this.ggrid = [[]];
+    /** @type {number} X coordinate of the rectangle */
+    this.rectangleXcoord = 0;
+    /** @type {number} Y coordinate of the rectangle */
+    this.rectangleYcoord = 0;
+    /** @type {number} velocity of the rectangle */
+    this.rectanglevelocity = 0.1;
+
   }
 
   /**
@@ -41,6 +48,8 @@ export class Game {
   update(elapsed) {
     // Update the color
     this.hue = (this.hue + elapsed / 100) % 360;
+    this.rectangleXcoord = this.rectangleXcoord + elapsed*this.rectanglevelocity;
+    //console.log(this.rectangleXcoord);
   }
 
   draw() {
@@ -49,7 +58,7 @@ export class Game {
     ctx.fillRect(0, 0, this.gameW, this.gameH);
     //draw a rectangle
     ctx.fillStyle = "green";
-    ctx.fillRect(20, 20, 10, 10);
+    ctx.fillRect(this.rectangleXcoord, 20, 10, 10); //(x, y, width, height)
     //draw a circle
     ctx.beginPath();
     ctx.arc(50, 50, 10, 0, 2 * Math.PI, false); //centerX, centerY, radius
