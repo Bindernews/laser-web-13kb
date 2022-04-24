@@ -75,6 +75,9 @@ export class Game {
     // NOTE: Some names (like ggrid) are that way to help the name-mangler
     // reduce the code size.
 
+
+
+
     /** @type {number} Timestamp of start of previous frame */
     this.lastTimestamp = 0;
     /** @type {CanvasRenderingContext2D} Canvas rendering context */
@@ -87,6 +90,29 @@ export class Game {
     this.gameH = 400;
     /** @type {Array<Array<number>>} level grid */
     this.ggrid = [[]];
+    /** @type {Vec2} mouse X and Y coords */
+    this.mouse;
+    document.addEventListener("mousemove", (e) => { //arrow used to keep the same "this"
+      this.mouse = new Vec2(e.clientX, e.clientY); //x, y
+      //console.log(mouse.x + " , "+ mouse.y);
+
+
+      let rect = this.ctx.canvas.getBoundingClientRect(); //ctx has a canvas object
+      //console.log(rect.top, rect.right, rect.bottom, rect.left); //top 8 right 626.5 bottom 408 left 26.5
+      //coordinates change when resizing window
+
+      //rect.top, rect.right is 0,0
+      //detect if mouse is inside game screen
+      if(this.mouse.x >= rect.left && this.mouse.x <= rect.right && this.mouse.y >= rect.top && this.mouse.y <= rect.bottom){
+        console.log("mouse x and y coord inside game screen");
+      }
+
+      //sync mouse coordinates to game screen coordinates
+    });
+
+
+
+
   }
 
   /**
