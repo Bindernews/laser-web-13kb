@@ -1,3 +1,71 @@
+import { Vec2 } from "./vec2";
+
+export const D_RIGHT = 0;
+export const D_UP = 1;
+export const D_LEFT = 2;
+export const D_DOWN = 3;
+
+
+function newGrid(w, h) {
+  const o = {
+    /** @type {number[]} */
+    data: new Array(w * h).fill(0),
+
+    /**
+     * Get the value in the grid at the requested coordinates
+     * @param {number} x 
+     * @param {number} y 
+     * @returns {number|undefined}
+     */
+    get(x, y) {
+      return o.inBounds(x, y) 
+        ? o.data[y * w + x]
+        : undefined;
+    },
+
+    /**
+     * Set the value in the grid at the requested coordinates
+     * @param {number} x 
+     * @param {number} y 
+     * @param {number} v 
+     */
+    set(x, y, v) {
+      if (o.inBounds(x, y)) {
+        o.data[y * w + x] = v;
+      }
+    },
+    inBounds(x, y) {
+      return !(x < 0 || x >= w || y < 0 || y >= h);
+    },
+  };
+  return o;
+}
+
+
+
+/**
+ * @implements {IGameObject}
+ */
+class RotateShooter {
+  pos = new Vec2(0, 0);
+  direction = D_RIGHT;
+
+  fire() {
+    
+  }
+
+  draw(ctx) {
+    
+  }
+
+  onHit(direction) {
+    let d = this.direction - 1;
+    if (d < 0) {
+      d = D_DOWN;
+    }
+    this.direction = d;
+  }
+}
 
 /**
  * @class Main game state
@@ -18,7 +86,7 @@ export class Game {
     /** @type {number} Game height */
     this.gameH = 400;
     /** @type {Array<Array<number>>} level grid */
-    this.ggrid = [[]]
+    this.ggrid = [[]];
   }
 
   /**
