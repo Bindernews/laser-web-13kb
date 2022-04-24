@@ -91,11 +91,10 @@ export class Game {
     /** @type {Array<Array<number>>} level grid */
     this.ggrid = [[]];
     /** @type {Vec2} mouse X and Y coords relative to the game screen*/
-    this.mouseGame;
+    this.mouseGame = new Vec2(0,0); //give it initial value to prevent undefined error
     document.addEventListener("mousemove", (e) => { //arrow used to keep the same "this"
       let mouse = new Vec2(e.clientX, e.clientY); //x, y //mouse coordinates relative to browser window
       //console.log(mouse.x + " , "+ mouse.y);
-
 
       let rect = this.ctx.canvas.getBoundingClientRect(); //ctx has a canvas object
       //console.log(rect.top, rect.right, rect.bottom, rect.left); //top 8 right 626.5 bottom 408 left 26.5
@@ -105,17 +104,13 @@ export class Game {
       //detect if mouse is inside game screen
       if(mouse.x >= rect.left && mouse.x <= rect.right && mouse.y >= rect.top && mouse.y <= rect.bottom) //if mouse is inside game screen
       {
-        console.log("mouse x and y coord inside game screen");
         //sync mouse coordinates to game screen coordinates
         //to convert mouse to screen coord: subtract the rect.left and rect.top from the mouse coordinates
         this.mouseGame = mouse.sub(rect.left, rect.top);
-        console.log(this.mouseGame.x + " , "+this.mouseGame.y)
-
+        //console.log(this.mouseGame.x + " , "+this.mouseGame.y)
       }
 
-
-    });
-
+    }); //end addEventListener
 
 
 
@@ -142,12 +137,35 @@ export class Game {
   update(elapsed) {
     // Update the color
     this.hue = (this.hue + elapsed / 100) % 360;
+
+
+
+    let bool1 = this.mouseGame.inCircle(50, 50, 10);//centerx, centery, radius
+    //determine if mouse is inside circle
+    if(bool1 === true)
+    {
+      console.log("in circle");
+    } 
+    else {
+      console.log("not in circle");
+    }
   }
 
   draw() {
     const ctx = this.ctx;
     ctx.fillStyle = `hsl(${this.hue}, 100%, 80%)`;
     ctx.fillRect(0, 0, this.gameW, this.gameH);
+
+    //draw a circle - we will determine if player clicks on this
+    //this will become the laser cannon
+    ctx.beginPath();
+    ctx.arc(25, 25, 10, 0, 2 * Math.PI, false); //centerX, centerY, radius
+    ctx.fillStyle = "blue";
+    ctx.fill();
+    //end draw circle
+    //this circle gets drawn at a weird spot, we will have to mess with how circles are drawn
+
+    
   }
 
   /**

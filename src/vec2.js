@@ -124,5 +124,39 @@ export class Vec2 {
   eq(rhs) {
     return this.x === rhs.x && this.y === rhs.y;
   }
+  /**
+   * determine if a vec2 is inside a box
+   */
+  inBox()
+  {
+    return false;
+    //fix later
+    //if(this.x >= (centerx-radius) && this.x <= (centerx+radius) && this.y >= (centery-radius) && this.y <= (centery+radius))
+  }
+
+   /**
+   * determine if a vec2 is inside a circle
+   * send the x and y coord of the center of the circle
+   * and the radius
+   * @param {number} centerx
+   * @param {number} centery
+   * @param {number} radius
+   * @returns {boolean}
+   */
+  inCircle(centerx, centery, radius)
+  {
+    //determine if the distance from a point to the center is less than the distance from the center to the radius
+    //difference between x coords
+    let xdiff = this.x - centerx;
+    //difference between y coords
+    let ydiff = this.y - centery;
+     if(Math.sqrt((xdiff*xdiff) + (ydiff*ydiff)) < radius)
+      {
+        return true;
+      }
+      else {
+        return false;
+      }
+  }
 }
 
