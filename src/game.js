@@ -66,6 +66,29 @@ class RotateShooter {
     this.direction = d;
   }
 }
+//let rotate = new RotateShooter();
+//rotate.draw(this.ctx);
+class Shooter {
+  //shoots a laser when clicked
+  //only shoots to the right
+  //never rotates
+  constructor(centerX, centerY, radius){
+    this.centerX = centerX;
+    this.centerY = centerY;
+    this.radius = radius;
+  }
+
+  draw(ctx){
+    //draw a circle - we will determine if player clicks on this
+    ctx.beginPath();
+    ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI, false); //centerX, centerY, radius //25 25 10
+    ctx.fillStyle = "blue";
+    ctx.fill();
+    //end draw circle
+  }
+
+  //add code to detect player clicks
+}
 
 /**
  * @class Main game state
@@ -156,20 +179,9 @@ export class Game {
     ctx.fillStyle = `hsl(${this.hue}, 100%, 80%)`;
     ctx.fillRect(0, 0, this.gameW, this.gameH);
 
-    //draw a circle - we will determine if player clicks on this
-    //this will become the laser cannon
-    ctx.beginPath();
-    ctx.arc(25, 25, 10, 0, 2 * Math.PI, false); //centerX, centerY, radius
-    ctx.fillStyle = "blue";
-    ctx.fill();
-    //end draw circle
-    //this circle gets drawn at a weird spot, we will have to mess with how circles are drawn
-
-    //draw a rectangle
-    ctx.fillStyle = "green";
-    ctx.fillRect(100, 20, 10, 10); //x,y is top left corner then width, height
-
     
+    this.shoot.draw(this.ctx);
+
 
     
   }
@@ -196,6 +208,12 @@ export class Game {
    * Start running the game
    */
   run() {
+    //make the objects that go in the game
+    //later put the load level stuff here
+
+    //make a new laser shooter
+    this.shoot = new Shooter(50, 50, 10); //use this so that it is in the scope of the game
+    //we could define this.shoot in the game constructor but nahhhh im lazy
     this.lastTimestamp = performance.now();
     requestAnimationFrame((t) => this.frame(t));
   }
