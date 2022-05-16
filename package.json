@@ -8,11 +8,10 @@
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.1.3",
+    "prettier": "2.6.2",
     "rollup": "^2.70",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-terser": "^7.0.2",
     "sirv-cli": "^2.0"
-  },
-  "dependencies": {
   }
 }
