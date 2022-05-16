@@ -74,14 +74,12 @@ export class Game {
   constructor() {
     // NOTE: Some names (like ggrid) are that way to help the name-mangler
     // reduce the code size.
-
-
-
+    let canvas = document.getElementById('render')
 
     /** @type {number} Timestamp of start of previous frame */
     this.lastTimestamp = 0;
     /** @type {CanvasRenderingContext2D} Canvas rendering context */
-    this.ctx = document.getElementById('render').getContext('2d');
+    this.ctx = canvas.getContext('2d');
     /** @type {number} Hue */
     this.hue = 0;
     /** @type {number} Game width */
@@ -92,6 +90,10 @@ export class Game {
     this.ggrid = [[]];
     /** @type {Vec2} mouse X and Y coords relative to the game screen*/
     this.mouseGame = new Vec2(0,0); //give it initial value to prevent undefined error
+
+    // Make sure the canvas has the correct size
+    canvas.width = this.gameW
+    canvas.height = this.gameH
 
     document.addEventListener("mousemove", (e) => { //arrow used to keep the same "this"
       let mouse = new Vec2(e.clientX, e.clientY); //x, y //mouse coordinates relative to browser window
@@ -142,12 +144,10 @@ export class Game {
 
 
 
-    let bool1 = this.mouseGame.inCircle(50, 50, 10);//centerx, centery, radius
+    let bool1 = this.mouseGame.inCircle(25, 25, 10);//centerx, centery, radius
     //determine if mouse is inside circle
     if(bool1) {
       console.log("in circle");
-    } else {
-      console.log("not in circle");
     }
   }
 
