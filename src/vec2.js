@@ -158,5 +158,16 @@ export class Vec2 {
         return false;
       }
   }
+
+  inBox(cornerx,cornery, width, height)
+  {
+    //cornerx cornery, width height are same parameters as fillRect()
+    //cornerx cornery is top left corner assuming width and height are not negative
+    //lets just vow to never use negative numbers for width and height because why does js even let u do that
+    if(this.x >= cornerx && this.x <= (cornerx+width))
+    {
+      console.log("is on box at least the x is");
+    }
+  }
 }
 

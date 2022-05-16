@@ -165,6 +165,12 @@ export class Game {
     //end draw circle
     //this circle gets drawn at a weird spot, we will have to mess with how circles are drawn
 
+    //draw a rectangle
+    ctx.fillStyle = "green";
+    ctx.fillRect(100, 20, 10, 10); //x,y is top left corner then width, height
+
+    
+
     
   }
 
