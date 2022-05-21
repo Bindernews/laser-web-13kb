@@ -8,6 +8,7 @@ export const D_DOWN = 3;
 
 function newGrid(w, h) {
   const o = {
+    //this is a 1D array. it's faster than a 2D array
     /** @type {number[]} */
     data: new Array(w * h).fill(0),
 
@@ -18,7 +19,7 @@ function newGrid(w, h) {
      * @returns {number|undefined}
      */
     get(x, y) {
-      return o.inBounds(x, y) 
+      return o.inBounds(x, y) //inBounds checks if its a valid grid position
         ? o.data[y * w + x]
         : undefined;
     },
@@ -88,6 +89,12 @@ class Shooter {
   }
 
   //add code to detect player clicks
+  mouseInShooter(game)//this in the bigger picture is the "game" this. pass this as a parameter, and set it to game
+  {
+    //return true if mouse is over Shooter
+    let mouseinshoot = game.mouseGame.inCircle(this.centerX, this.centerY, this.radius);
+    return mouseinshoot;
+  }
 }
 
 /**
@@ -135,7 +142,12 @@ export class Game {
     }); //end addEventListener
 
     document.addEventListener("mousedown", (e) => {
-      // TODO handle mouse down event
+      //test if mouse is in shooter
+      //TODO: loop thru a list of all shooters and test if the mouse is in each of them
+    if(this.shoot.mouseInShooter(this))
+    {
+      console.log("great job u clicked on the shooter you win!!!");
+    }
     });
 
     document.addEventListener("mouseup", (e) => {
@@ -164,14 +176,6 @@ export class Game {
   update(elapsed) {
     // Update the color
     this.hue = (this.hue + elapsed / 100) % 360;
-
-
-
-    let bool1 = this.mouseGame.inCircle(25, 25, 10);//centerx, centery, radius
-    //determine if mouse is inside circle
-    if(bool1) {
-      console.log("in circle");
-    }
   }
 
   draw() {
@@ -179,9 +183,7 @@ export class Game {
     ctx.fillStyle = `hsl(${this.hue}, 100%, 80%)`;
     ctx.fillRect(0, 0, this.gameW, this.gameH);
 
-    
     this.shoot.draw(this.ctx);
-
 
     
   }
