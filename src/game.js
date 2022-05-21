@@ -97,6 +97,27 @@ class Shooter {
   }
 }
 
+class Laser{
+  //moves to the right forever
+  //TODO: make it start in a direction based on constructor
+  //TODO: Add collision detection based on if it hits mirror
+  constructor(pos, velocity)
+  {
+    //pos is (x,y) coord
+    //this.pos.x and this.pos.y are the X and Y coordinates
+    //velocity is (x,y) velocity
+    //this.velocity.x and this.velocity.y are 
+    //pos (x,y) is top left corner of laser because of how fillRect works
+    this.pos = pos;
+    this.velocity = velocity;
+  }
+  draw(ctx){
+    ctx.fillRect(this.pos.x, this.pos.y, 10, 2); //(x, y, width, height)
+  }
+
+
+}
+
 /**
  * @class Main game state
  */
@@ -147,6 +168,7 @@ export class Game {
     if(this.shoot.mouseInShooter(this))
     {
       console.log("great job u clicked on the shooter you win!!!");
+      //call a function that creates a laser
     }
     });
 
@@ -176,6 +198,8 @@ export class Game {
   update(elapsed) {
     // Update the color
     this.hue = (this.hue + elapsed / 100) % 360;
+    //move the laser
+    this.laser.pos.add(elapsed*this.laser.velocity.x,elapsed*this.laser.velocity.y);
   }
 
   draw() {
@@ -184,6 +208,8 @@ export class Game {
     ctx.fillRect(0, 0, this.gameW, this.gameH);
 
     this.shoot.draw(this.ctx);
+
+    this.laser.draw(this.ctx);
 
     
   }
@@ -214,8 +240,12 @@ export class Game {
     //later put the load level stuff here
 
     //make a new laser shooter
-    this.shoot = new Shooter(50, 50, 10); //use this so that it is in the scope of the game
     //we could define this.shoot in the game constructor but nahhhh im lazy
+    this.shoot = new Shooter(50, 50, 10); //use this so that it is in the scope of the game
+
+    //we probably should not create a laser here
+    this.laser = new Laser(new Vec2(60, 50), new Vec2(0.1, 0));//pos vec, velocity vec
+
     this.lastTimestamp = performance.now();
     requestAnimationFrame((t) => this.frame(t));
   }
