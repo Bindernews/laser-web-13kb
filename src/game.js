@@ -88,10 +88,13 @@ class Shooter {
   draw(ctx){
     //draw a circle - we will determine if player clicks on this
     ctx.beginPath();
-    ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI, false); //centerX, centerY, radius //25 25 10
+    ctx.arc(this.center.x, this.center.y, this.radius, 0, 2 * Math.PI, false); //centerX, centerY, radius //25 25 10
     ctx.fillStyle = "blue";
     ctx.fill();
     //end draw circle
+  }
+  update(elapsed){
+    //do nothing
   }
 
   /**
@@ -129,6 +132,10 @@ class Laser{
   }
   draw(ctx){
     ctx.fillRect(this.pos.x, this.pos.y, 10, 2); //(x, y, width, height)
+  }
+
+  update(elapsed){
+    this.pos.add(elapsed*this.velocity.x,elapsed*this.velocity.y);
   }
 }
 
@@ -222,9 +229,9 @@ export class Game {
     // Update the color
     this.hue = (this.hue + elapsed / 100) % 360;
     //move the laser
-    this.laser.pos.add(elapsed*this.laser.velocity.x,elapsed*this.laser.velocity.y);
+    
     // Update all game objects
-    for (obj of this.gameObjects) {
+    for (let obj of this.gameObjects) {
       obj.update(elapsed);
     }
   }
@@ -237,7 +244,7 @@ export class Game {
     ctx.fillRect(0, 0, this.gameW, this.gameH);
 
     // Draw game objects
-    for (obj of this.gameObjects) {
+    for (let obj of this.gameObjects) {
       obj.draw(ctx);
     }
   }
@@ -261,7 +268,7 @@ export class Game {
   }
 
   addObjects(...objects) {
-    for (o of objects) {
+    for (let o of objects) {
       o.game = this;
       this.gameObjects.push(o);
     }
