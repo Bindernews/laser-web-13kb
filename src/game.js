@@ -92,6 +92,11 @@ class Shooter {
     ctx.fillStyle = "blue";
     ctx.fill();
     //end draw circle
+
+    //draw a line to indicate shooter direction
+    ctx.fillStyle = "white";
+    ctx.fillRect(this.center.x, this.center.y, 10, 2); //(x, y, width, height)
+    
   }
   update(elapsed){
     //do nothing
@@ -114,6 +119,12 @@ class Shooter {
     let mouseinshoot = game.mouseGame.inCircle(this.centerX, this.centerY, this.radius);
     return mouseinshoot;
   }
+
+  spawnLaser()
+  {
+    //call this when the shooter is clicked
+    const laser = new Laser(this.pos, new Vec2(0.1, 0));//pos, velocity
+  }
 }
 
 class Laser{
@@ -131,6 +142,7 @@ class Laser{
     this.velocity = velocity;
   }
   draw(ctx){
+    ctx.fillStyle = "red";
     ctx.fillRect(this.pos.x, this.pos.y, 10, 2); //(x, y, width, height)
   }
 
@@ -189,7 +201,7 @@ export class Game {
       //test if mouse is in shooter
       //TODO: loop thru a list of all shooters and test if the mouse is in each of them
       this.gameObjects.forEach(obj => {
-        if (obj.onMouseDown) {
+        if (obj.onMouseDown) { //check to make sure the object has an onMouseDown function
           obj.onMouseDown(e);
         }
       });
@@ -199,7 +211,7 @@ export class Game {
       // TODO handle mouse up event
       // If any game object has an "onMouseUp" function, try to call it.
       // Note the "of" keyword instead of "in" in the for loop. They're different.
-      for (obj of this.gameObjects) {
+      for (let obj of this.gameObjects) {
         if (obj.onMouseUp) {
           obj.onMouseUp(e);
         }
