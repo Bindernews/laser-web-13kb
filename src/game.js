@@ -109,6 +109,12 @@ class Shooter {
     let c = this.center;
     if (this.game.mouseGame.inCircle(c.x, c.y, this.radius)) {
       console.log("great job u clicked on the shooter you win!!!");
+      let laser = new Laser(c.clone(), new Vec2(0.1, 0));//pos vec, velocity vec
+//2 ways we could do this new Vec2(c.x, c.y) OR c.clone()
+
+      // Actually add our laser to the game
+      game.addObjects(laser);
+
     }
   }
 
@@ -307,8 +313,8 @@ function initTestLevel(game) {
     //make a new laser shooter
     //we could define this.shoot in the game constructor but nahhhh im lazy
     let shooter = new Shooter(50, 50, 10);
-    let laser = new Laser(new Vec2(60, 50), new Vec2(0.1, 0));//pos vec, velocity vec
+    let shooter2 = new Shooter(50, 100, 10);
 
     // Actually add our objects to the game
-    game.addObjects(shooter, laser);
+    game.addObjects(shooter, shooter2);
 }
