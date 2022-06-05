@@ -77,6 +77,7 @@ class Shooter {
     this.centerX = centerX;
     this.centerY = centerY;
     this.radius = radius;
+    this.pos = new Vec2(centerX,centerY);
   }
 
   draw(ctx){
@@ -99,6 +100,12 @@ class Shooter {
     //return true if mouse is over Shooter
     let mouseinshoot = game.mouseGame.inCircle(this.centerX, this.centerY, this.radius);
     return mouseinshoot;
+  }
+
+  spawnLaser()
+  {
+    //call this when the shooter is clicked
+    const laser = new Laser(this.pos, new Vec2(0.1, 0));//pos, velocity
   }
 }
 
@@ -175,6 +182,8 @@ export class Game {
     {
       console.log("great job u clicked on the shooter you win!!!");
       //call a function that creates a laser
+      //this.shoot.spawnLaser();
+      
     }
     });
 
