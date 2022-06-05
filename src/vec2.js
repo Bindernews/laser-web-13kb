@@ -200,14 +200,18 @@ export class Vec2 {
     return xdiff * xdiff + ydiff * ydiff <= radius * radius;
   }
 
-  inBox(cornerx,cornery, width, height)
-  {
+  /**
+   * Returns true if this point is in the provided rectangle, false if outside.
+   * 
+   * @param {number} x top-left X coordinate
+   * @param {number} y top-left Y coordinate
+   * @param {number} width width of the box
+   * @param {number} height height of the box
+   */
+  inBox(x, y, width, height) {
     //cornerx cornery, width height are same parameters as fillRect()
     //cornerx cornery is top left corner assuming width and height are not negative
     //lets just vow to never use negative numbers for width and height because why does js even let u do that
-    if(this.x >= cornerx && this.x <= (cornerx+width))
-    {
-      console.log("is on box at least the x is");
-    }
+    return this.inRect(x, y, x + width, y + width);
   }
 }

@@ -1,3 +1,4 @@
+import { GRID_H, GRID_W } from "./constants";
 import { Vec2 } from "./vec2";
 
 export const D_RIGHT = 0;
@@ -5,9 +6,16 @@ export const D_UP = 1;
 export const D_LEFT = 2;
 export const D_DOWN = 3;
 
-
+/**
+ * @param {number} w Width of the grid (in grid spaces)
+ * @param {number} h Height of the grid (in grid spaces)
+ * @returns {Grid} A new Grid object
+ */
 function newGrid(w, h) {
   const o = {
+    w: w,
+    h: h,
+
     //this is a 1D array. it's faster than a 2D array
     /** @type {number[]} */
     data: new Array(w * h).fill(0),
@@ -43,10 +51,6 @@ function newGrid(w, h) {
 }
 
 
-
-/**
- * @implements {IGameObject}
- */
 class RotateShooter {
   pos = new Vec2(0, 0);
   direction = D_RIGHT;
@@ -74,9 +78,11 @@ class Shooter {
   //only shoots to the right
   //never rotates
   constructor(centerX, centerY, radius){
-    this.centerX = centerX;
-    this.centerY = centerY;
+    /** @type {Vec2} */
+    this.center = Vec2.of(centerX, centerY);
     this.radius = radius;
+    /** @type {Game} */
+    this.game = null
   }
 
   draw(ctx){
@@ -86,6 +92,16 @@ class Shooter {
     ctx.fillStyle = "blue";
     ctx.fill();
     //end draw circle
+  }
+
+  /**
+   * @param {MouseEvent} e
+   */
+  onMouseDown(e) {
+    let c = this.center;
+    if (this.game.mouseGame.inCircle(c.x, c.y, this.radius)) {
+      console.log("great job u clicked on the shooter you win!!!");
+    }
   }
 
   //add code to detect player clicks
@@ -114,8 +130,6 @@ class Laser{
   draw(ctx){
     ctx.fillRect(this.pos.x, this.pos.y, 10, 2); //(x, y, width, height)
   }
-
-
 }
 
 /**
@@ -137,8 +151,10 @@ export class Game {
     this.gameW = 600;
     /** @type {number} Game height */
     this.gameH = 400;
-    /** @type {Array<Array<number>>} level grid */
-    this.ggrid = [[]];
+    /** @type {Grid} level grid */
+    this.ggrid = newGrid(GRID_W, GRID_H);
+    /** @type {object[]} */
+    this.gameObjects = []
     /** @type {Vec2} mouse X and Y coords relative to the game screen*/
     this.mouseGame = new Vec2(0,0); //give it initial value to prevent undefined error
 
@@ -165,15 +181,22 @@ export class Game {
     document.addEventListener("mousedown", (e) => {
       //test if mouse is in shooter
       //TODO: loop thru a list of all shooters and test if the mouse is in each of them
-    if(this.shoot.mouseInShooter(this))
-    {
-      console.log("great job u clicked on the shooter you win!!!");
-      //call a function that creates a laser
-    }
+      this.gameObjects.forEach(obj => {
+        if (obj.onMouseDown) {
+          obj.onMouseDown(e);
+        }
+      });
     });
 
     document.addEventListener("mouseup", (e) => {
       // TODO handle mouse up event
+      // If any game object has an "onMouseUp" function, try to call it.
+      // Note the "of" keyword instead of "in" in the for loop. They're different.
+      for (obj of this.gameObjects) {
+        if (obj.onMouseUp) {
+          obj.onMouseUp(e);
+        }
+      }
     });
   }
 
@@ -200,18 +223,23 @@ export class Game {
     this.hue = (this.hue + elapsed / 100) % 360;
     //move the laser
     this.laser.pos.add(elapsed*this.laser.velocity.x,elapsed*this.laser.velocity.y);
+    // Update all game objects
+    for (obj of this.gameObjects) {
+      obj.update(elapsed);
+    }
   }
 
   draw() {
     const ctx = this.ctx;
+
+    // Draw the background
     ctx.fillStyle = `hsl(${this.hue}, 100%, 80%)`;
     ctx.fillRect(0, 0, this.gameW, this.gameH);
 
-    this.shoot.draw(this.ctx);
-
-    this.laser.draw(this.ctx);
-
-    
+    // Draw game objects
+    for (obj of this.gameObjects) {
+      obj.draw(ctx);
+    }
   }
 
   /**
@@ -232,21 +260,36 @@ export class Game {
     // TODO convert grid to 2D array, store it
   }
 
+  addObjects(...objects) {
+    for (o of objects) {
+      o.game = this;
+      this.gameObjects.push(o);
+    }
+  }
+
   /**
    * Start running the game
    */
   run() {
-    //make the objects that go in the game
-    //later put the load level stuff here
-
-    //make a new laser shooter
-    //we could define this.shoot in the game constructor but nahhhh im lazy
-    this.shoot = new Shooter(50, 50, 10); //use this so that it is in the scope of the game
-
-    //we probably should not create a laser here
-    this.laser = new Laser(new Vec2(60, 50), new Vec2(0.1, 0));//pos vec, velocity vec
-
+    // make the objects that go in the game
+    // later put the load level stuff here
+    initTestLevel(this);
+    // This is required to get the proper elapsed time
     this.lastTimestamp = performance.now();
     requestAnimationFrame((t) => this.frame(t));
   }
+}
+
+/**
+ * Initialize the test level
+ * @param {Game} game 
+ */
+function initTestLevel(game) {
+    //make a new laser shooter
+    //we could define this.shoot in the game constructor but nahhhh im lazy
+    let shooter = new Shooter(50, 50, 10);
+    let laser = new Laser(new Vec2(60, 50), new Vec2(0.1, 0));//pos vec, velocity vec
+
+    // Actually add our objects to the game
+    game.addObjects(shooter, laser);
 }
