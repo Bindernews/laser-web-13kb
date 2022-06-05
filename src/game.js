@@ -86,6 +86,11 @@ class Shooter {
     ctx.fillStyle = "blue";
     ctx.fill();
     //end draw circle
+
+    //draw a line to indicate shooter direction
+    ctx.fillStyle = "white";
+    ctx.fillRect(this.centerX, this.centerY, 10, 2); //(x, y, width, height)
+    
   }
 
   //add code to detect player clicks
@@ -112,6 +117,7 @@ class Laser{
     this.velocity = velocity;
   }
   draw(ctx){
+    ctx.fillStyle = "red";
     ctx.fillRect(this.pos.x, this.pos.y, 10, 2); //(x, y, width, height)
   }
 
