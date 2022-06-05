@@ -56,7 +56,7 @@ class RotateShooter {
   direction = D_RIGHT;
 
   fire() {
-    
+    //fire the shooter
   }
 
   draw(ctx) {
