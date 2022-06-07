@@ -147,6 +147,34 @@ export class Vec2 {
   }
 
   /**
+   * Returns the dot product of two vectors
+   * @param {Vec2} rhs
+   * @returns {number}
+   */
+  dot(rhs) {
+    return this.x * rhs.x + this.y * rhs.y;
+  }
+
+  /**
+   * Returns the length of this vector
+   */
+  len() {
+    return Math.sqrt(this.lenSq());
+  }
+
+  /**
+   * Returns the magnitude of this vector, squared
+   * @returns {number}
+   */
+  lenSq() {
+    return this.x * this.x + this.y * this.y;
+  }
+
+  floor() {
+    return this.apply1(Math.floor);
+  }
+
+  /**
    * Test if two points are equal
    * @param {Vec2} rhs
    * @returns {boolean}
@@ -202,7 +230,7 @@ export class Vec2 {
 
   /**
    * Returns true if this point is in the provided rectangle, false if outside.
-   * 
+   *
    * @param {number} x top-left X coordinate
    * @param {number} y top-left Y coordinate
    * @param {number} width width of the box
@@ -212,6 +240,6 @@ export class Vec2 {
     //cornerx cornery, width height are same parameters as fillRect()
     //cornerx cornery is top left corner assuming width and height are not negative
     //lets just vow to never use negative numbers for width and height because why does js even let u do that
-    return this.inRect(x, y, x + width, y + width);
+    return this.inRect(x, y, x + width, y + height);
   }
 }

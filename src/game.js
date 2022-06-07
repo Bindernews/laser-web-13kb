@@ -1,104 +1,59 @@
-import { GRID_H, GRID_W } from "./constants";
+import { GRID_H, GRID_SIZE, GRID_W, Direction, LASER_SPEED } from "./constants";
 import { Vec2 } from "./vec2";
-
-export const D_RIGHT = 0;
-export const D_UP = 1;
-export const D_LEFT = 2;
-export const D_DOWN = 3;
-
-/**
- * @param {number} w Width of the grid (in grid spaces)
- * @param {number} h Height of the grid (in grid spaces)
- * @returns {Grid} A new Grid object
- */
-function newGrid(w, h) {
-  const o = {
-    w: w,
-    h: h,
-
-    //this is a 1D array. it's faster than a 2D array
-    /** @type {number[]} */
-    data: new Array(w * h).fill(0),
-
-    /**
-     * Get the value in the grid at the requested coordinates
-     * @param {number} x 
-     * @param {number} y 
-     * @returns {number|undefined}
-     */
-    get(x, y) {
-      return o.inBounds(x, y) //inBounds checks if its a valid grid position
-        ? o.data[y * w + x]
-        : undefined;
-    },
-
-    /**
-     * Set the value in the grid at the requested coordinates
-     * @param {number} x 
-     * @param {number} y 
-     * @param {number} v 
-     */
-    set(x, y, v) {
-      if (o.inBounds(x, y)) {
-        o.data[y * w + x] = v;
-      }
-    },
-    inBounds(x, y) {
-      return !(x < 0 || x >= w || y < 0 || y >= h);
-    },
-  };
-  return o;
-}
-
+import { CircleShape } from "./collision";
+import { Grid } from "./grid";
+import { arraySwap, canvasRotateMove, isFunc, toView } from "./mutil";
 
 class RotateShooter {
   pos = new Vec2(0, 0);
-  direction = D_RIGHT;
+  direction = Direction.East;
 
   fire() {
     //fire the shooter
   }
 
-  draw(ctx) {
-    
-  }
-
-  onHit(direction) {
-    let d = this.direction - 1;
-    if (d < 0) {
-      d = D_DOWN;
-    }
-    this.direction = d;
-  }
+  draw(ctx) {}
 }
 //let rotate = new RotateShooter();
 //rotate.draw(this.ctx);
 class Shooter {
   //shoots a laser when clicked
   //only shoots to the right
-  //never rotates
-  constructor(centerX, centerY, radius){
+  constructor(center, facing) {
+    const radius = GRID_SIZE / 2 - 4;
     /** @type {Vec2} */
-    this.center = Vec2.of(centerX, centerY);
+    this.center = center;
+    /** @type {Shape} */
+    this.collider = new CircleShape(this.center.clone(), radius);
     this.radius = radius;
+    /** @type {Direction} */
+    this.facing = facing;
     /** @type {Game} */
-    this.game = null
+    this.game = null;
   }
 
-  draw(ctx){
+  /**
+   *
+   * @param {CanvasRenderingContext2D} ctx
+   */
+  draw(ctx) {
+    canvasRotateMove(ctx, this.center, (this.facing * Math.PI) / 2);
     //draw a circle - we will determine if player clicks on this
-    ctx.beginPath();
-    ctx.arc(this.center.x, this.center.y, this.radius, 0, 2 * Math.PI, false); //centerX, centerY, radius //25 25 10
     ctx.fillStyle = "blue";
+    ctx.beginPath();
+    ctx.arc(0, 0, this.radius, 0, 2 * Math.PI, false); //centerX, centerY, radius //25 25 10
     ctx.fill();
     //end draw circle
 
     //draw a line to indicate shooter direction
     ctx.fillStyle = "white";
-    ctx.fillRect(this.center.x, this.center.y, 10, 2); //(x, y, width, height)
-    
+    ctx.fillRect(0, 0, 10, 2); //(x, y, width, height)
+
+    // Restore previous transform and draw settings
+    ctx.restore();
   }
-  update(elapsed){
+
+  update(elapsed) {
     //do nothing
   }
 
@@ -109,51 +64,61 @@ class Shooter {
     let c = this.center;
     if (this.game.mouseGame.inCircle(c.x, c.y, this.radius)) {
       console.log("great job u clicked on the shooter you win!!!");
-      let laser = new Laser(c.clone(), new Vec2(0.1, 0));//pos vec, velocity vec
-//2 ways we could do this new Vec2(c.x, c.y) OR c.clone()
+      let velocity = Direction.toVec(this.facing).mul(LASER_SPEED);
+      let laser = new Laser(c.clone(), velocity); //pos vec, velocity vec
+      //2 ways we could do this new Vec2(c.x, c.y) OR c.clone()
 
       // Actually add our laser to the game
       game.addObjects(laser);
-
     }
   }
 
   //add code to detect player clicks
-  mouseInShooter(game)//this in the bigger picture is the "game" this. pass this as a parameter, and set it to game
-  {
+  //this in the bigger picture is the "game" this. pass this as a parameter, and set it to game
+  mouseInShooter(game) {
     //return true if mouse is over Shooter
-    let mouseinshoot = game.mouseGame.inCircle(this.centerX, this.centerY, this.radius);
+    let mouseinshoot = game.mouseGame.inCircle(
+      this.centerX,
+      this.centerY,
+      this.radius
+    );
     return mouseinshoot;
-  }
-
-  spawnLaser()
-  {
-    //call this when the shooter is clicked
-    const laser = new Laser(this.pos, new Vec2(0.1, 0));//pos, velocity
   }
 }
 
-class Laser{
+class Laser {
   //moves to the right forever
   //TODO: make it start in a direction based on constructor
   //TODO: Add collision detection based on if it hits mirror
-  constructor(pos, velocity)
-  {
+  constructor(pos, velocity) {
     //pos is (x,y) coord
     //this.pos.x and this.pos.y are the X and Y coordinates
     //velocity is (x,y) velocity
-    //this.velocity.x and this.velocity.y are 
+    //this.velocity.x and this.velocity.y are
     //pos (x,y) is top left corner of laser because of how fillRect works
     this.pos = pos;
     this.velocity = velocity;
+    /** @type {CircleShape} */
+    this.collider = new CircleShape(pos, GRID_SIZE / 4);
+    /** Object that spawned this laser */
+    this.spawner = null;
+    /** @type {Game} */
+    this.game = null;
   }
-  draw(ctx){
+  draw(ctx) {
     ctx.fillStyle = "red";
     ctx.fillRect(this.pos.x, this.pos.y, 10, 2); //(x, y, width, height)
   }
 
-  update(elapsed){
-    this.pos.add(elapsed*this.velocity.x,elapsed*this.velocity.y);
+  update(elapsed) {
+    this.pos.add(elapsed * this.velocity.x, elapsed * this.velocity.y);
+    this.collider.center = this.pos.clone();
+    // Test for collisions with other objects and if found, tell those objects they've been hit
+    for (const other of this.game.ggrid.getCollisions(this.collider)) {
+      if (other !== this.spawner && isFunc(other.onLaserHit)) {
+        other.onLaserHit(this);
+      }
+    }
   }
 }
 
@@ -164,12 +129,12 @@ export class Game {
   constructor() {
     // NOTE: Some names (like ggrid) are that way to help the name-mangler
     // reduce the code size.
-    let canvas = document.getElementById('render')
+    let canvas = document.getElementById("render");
 
     /** @type {number} Timestamp of start of previous frame */
     this.lastTimestamp = 0;
     /** @type {CanvasRenderingContext2D} Canvas rendering context */
-    this.ctx = canvas.getContext('2d');
+    this.ctx = canvas.getContext("2d");
     /** @type {number} Hue */
     this.hue = 0;
     /** @type {number} Game width */
@@ -177,17 +142,18 @@ export class Game {
     /** @type {number} Game height */
     this.gameH = 400;
     /** @type {Grid} level grid */
-    this.ggrid = newGrid(GRID_W, GRID_H);
-    /** @type {object[]} */
-    this.gameObjects = []
+    this.ggrid = new Grid(GRID_W, GRID_H);
+    /** @type {object[]} All game objects to process each frame */
+    this.gameObjects = [];
     /** @type {Vec2} mouse X and Y coords relative to the game screen*/
-    this.mouseGame = new Vec2(0,0); //give it initial value to prevent undefined error
+    this.mouseGame = new Vec2(0, 0); //give it initial value to prevent undefined error
 
     // Make sure the canvas has the correct size
-    canvas.width = this.gameW
-    canvas.height = this.gameH
+    canvas.width = this.gameW;
+    canvas.height = this.gameH;
 
-    document.addEventListener("mousemove", (e) => { //arrow used to keep the same "this"
+    document.addEventListener("mousemove", (e) => {
+      //arrow used to keep the same "this"
       let mouse = new Vec2(e.clientX, e.clientY); //x, y //mouse coordinates relative to browser window
       //console.log(mouse.x + " , "+ mouse.y);
 
@@ -195,7 +161,7 @@ export class Game {
       //coordinates change when resizing browser window
 
       //detect if mouse is inside game screen
-      if(mouse.inRect(rect.left, rect.top, rect.right, rect.bottom)) {
+      if (mouse.inRect(rect.left, rect.top, rect.right, rect.bottom)) {
         //sync mouse coordinates to game screen coordinates
         //to convert mouse to screen coord: subtract the rect.left and rect.top from the mouse coordinates
         this.mouseGame = mouse.sub(rect.left, rect.top);
@@ -204,13 +170,10 @@ export class Game {
     }); //end addEventListener
 
     document.addEventListener("mousedown", (e) => {
-      //test if mouse is in shooter
-      //TODO: loop thru a list of all shooters and test if the mouse is in each of them
-      this.gameObjects.forEach(obj => {
-        if (obj.onMouseDown) { //check to make sure the object has an onMouseDown function
-          obj.onMouseDown(e);
-        }
-      });
+      // Call onMouseDown for each game object
+      for (let obj of this.gameObjects) {
+        isFunc(obj.onMouseDown) && obj.onMouseDown(e);
+      }
     });
 
     document.addEventListener("mouseup", (e) => {
@@ -218,9 +181,7 @@ export class Game {
       // If any game object has an "onMouseUp" function, try to call it.
       // Note the "of" keyword instead of "in" in the for loop. They're different.
       for (let obj of this.gameObjects) {
-        if (obj.onMouseUp) {
-          obj.onMouseUp(e);
-        }
+        isFunc(obj.onMouseUp) && obj.onMouseUp(e);
       }
     });
   }
@@ -230,8 +191,8 @@ export class Game {
    * @param {number} time timestamp (ms)
    */
   frame(time) {
-    // Example game loop
-    this.update(time - this.lastTimestamp);
+    // Send the elapsed time in terms of seconds, not milliseconds
+    this.update((time - this.lastTimestamp) / 1000);
     this.draw();
     // Update the timestamp for the next frame
     this.lastTimestamp = time;
@@ -241,13 +202,11 @@ export class Game {
 
   /**
    * Update the game state
-   * @param {number} elapsed elapsed time in ms
+   * @param {number} elapsed elapsed time in seconds
    */
   update(elapsed) {
     // Update the color
-    this.hue = (this.hue + elapsed / 100) % 360;
-    //move the laser
-    
+    this.hue = (this.hue + elapsed * 50) % 360;
     // Update all game objects
     for (let obj of this.gameObjects) {
       obj.update(elapsed);
@@ -269,7 +228,7 @@ export class Game {
 
   /**
    * Load a level string
-   * @param {string} text 
+   * @param {string} text
    */
   loadLevel(text) {
     const dict = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -278,8 +237,10 @@ export class Game {
     for (let i = 0; i < text.length; i += 1) {
       const item = dict.indexOf(text.charAt(i));
       grid.push(item);
-      switch (item) {
+      switch (
+        item
         // TODO create objects
+      ) {
       }
     }
     // TODO convert grid to 2D array, store it
@@ -289,6 +250,22 @@ export class Game {
     for (let o of objects) {
       o.game = this;
       this.gameObjects.push(o);
+      isFunc(o.onAdded) && o.onAdded();
+    }
+  }
+
+  /**
+   * Remove one or more objects from the game
+   * @param  {...any} objects Objects to remove from the game
+   */
+  removeObjects(...objects) {
+    const gob = this.gameObjects;
+    for (const o of objects) {
+      let i = gob.indexOf(o);
+      if (i !== -1) {
+        arraySwap(gob, i, gob.length - 1);
+        gob.pop();
+      }
     }
   }
 
@@ -307,14 +284,15 @@ export class Game {
 
 /**
  * Initialize the test level
- * @param {Game} game 
+ * @param {Game} game
  */
 function initTestLevel(game) {
-    //make a new laser shooter
-    //we could define this.shoot in the game constructor but nahhhh im lazy
-    let shooter = new Shooter(50, 50, 10);
-    let shooter2 = new Shooter(50, 100, 10);
+  //make a new laser shooter
+  //we could define this.shoot in the game constructor but nahhhh im lazy
+  let shooter1 = new Shooter(toView(Vec2.of(2, 2)), Direction.East);
+  let shooter2 = new Shooter(toView(Vec2.of(2, 4)), Direction.North);
+  let shooter3 = new Shooter(toView(Vec2.of(3, 4)), Direction.East);
 
-    // Actually add our objects to the game
-    game.addObjects(shooter, shooter2);
+  // Actually add our objects to the game
+  game.addObjects(shooter1, shooter2, shooter3);
 }
