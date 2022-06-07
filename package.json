@@ -4,7 +4,9 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "sirv dist -p 8000"
+    "start": "sirv dist -p 8000",
+    "fmt": "prettier --write src",
+    "fmt:check": "prettier --check src"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.1.3",
