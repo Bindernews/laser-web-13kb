@@ -1,9 +1,6 @@
 import { Game } from "./game";
-document.addEventListener(
-  "load",
-  () => {
-    window.game = new Game();
-    window.game.run();
-  },
-  true
-);
+const setupGame = () => {
+  window.game = new Game();
+  window.game.run();
+};
+document.addEventListener("load", setupGame, true);
